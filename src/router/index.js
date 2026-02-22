@@ -16,7 +16,7 @@ const routes = [
     path: '/parse',
     name: 'parse',
     component: ParseView,
-    meta: { title: '文档解析' },
+    meta: { title: '需求分析' },
     beforeEnter: (to, from, next) => {
       // 开发模式下跳过守卫检查
       if (import.meta.env.DEV) {
@@ -35,7 +35,7 @@ const routes = [
     path: '/review',
     name: 'review',
     component: ReviewView,
-    meta: { title: '审查分析' },
+    meta: { title: '需求补全' },
     beforeEnter: (to, from, next) => {
       // 开发模式下跳过守卫检查
       if (import.meta.env.DEV) {
@@ -56,7 +56,7 @@ const routes = [
     path: '/report',
     name: 'report',
     component: ReportView,
-    meta: { title: '审查报告' },
+    meta: { title: '需求导出' },
     beforeEnter: (to, from, next) => {
       // 开发模式下跳过守卫检查
       if (import.meta.env.DEV) {
