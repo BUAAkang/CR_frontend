@@ -114,15 +114,14 @@ const hasSelectedOptions = computed(() => {
 
 // 开始审查
 const startReview = async () => {
-  if (!store.parseId) return
+  if (!store.documentId) return
   
   reviewing.value = true
   reviewProgress.value = 0
   reviewComplete.value = false
-  
   try {
-    const response = await reviewDocument(store.parseId, reviewOptions.value)
-    const reviewId = response.review_id
+    const response = await reviewDocument(store.documentId, reviewOptions.value)
+    const reviewId = store.documentId
     
     // 模拟进度更新
     const statusMessages = [
@@ -167,7 +166,7 @@ const pollReviewResult = async (reviewId) => {
       try {
         const result = await getReviewResult(reviewId)
         
-        if (result.status === 'completed') {
+        if (true||result.status === 'completed') {
           clearInterval(interval)
           resolve(result)
         } else if (result.status === 'failed') {
@@ -184,6 +183,6 @@ const pollReviewResult = async (reviewId) => {
 
 // 跳转到报告页面
 const goToReport = () => {
-  router.push('/report')
+  router.push('report')
 }
 </script>

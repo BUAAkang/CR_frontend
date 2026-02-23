@@ -7,28 +7,22 @@
           <h1 class="text-3xl font-bold text-slate-900">需求导出</h1>
           <p class="text-slate-500 font-medium">查看和导出需求树JSON数据</p>
         </div>
-        
+
         <div class="flex items-center space-x-3">
-          <button 
-            @click="exportJSON"
-            class="px-4 py-2 bg-primary-900 hover:bg-primary-800 text-white font-semibold rounded-lg transition-all shadow-sm flex items-center space-x-2"
-          >
+          <button @click="exportJSON"
+            class="px-4 py-2 bg-primary-900 hover:bg-primary-800 text-white font-semibold rounded-lg transition-all shadow-sm flex items-center space-x-2">
             <Download class="w-4 h-4" />
             <span>导出JSON</span>
           </button>
-          
-          <button 
-            @click="copyToClipboard"
-            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold rounded-lg transition-all flex items-center space-x-2"
-          >
+
+          <button @click="copyToClipboard"
+            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold rounded-lg transition-all flex items-center space-x-2">
             <Copy class="w-4 h-4" />
             <span>复制</span>
           </button>
-          
-          <button 
-            @click="startNew"
-            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold rounded-lg transition-all flex items-center space-x-2"
-          >
+
+          <button @click="startNew"
+            class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-900 font-semibold rounded-lg transition-all flex items-center space-x-2">
             <RotateCw class="w-4 h-4" />
             <span>新建审查</span>
           </button>
@@ -46,23 +40,23 @@
         <!-- Statistics Card -->
         <div class="bg-slate-50 border border-slate-200 rounded-xl p-6 shadow-sm">
           <h2 class="text-lg font-bold text-slate-900 mb-4">数据统计</h2>
-          
+
           <div class="grid grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200 rounded-lg p-4">
               <p class="text-xs text-slate-500 font-medium mb-1">总需求数</p>
               <p class="text-2xl font-bold text-slate-900">{{ totalNodes }}</p>
             </div>
-            
+
             <div class="bg-green-50 border border-green-200 rounded-lg p-4">
               <p class="text-xs text-green-700 font-medium mb-1">一级需求</p>
               <p class="text-2xl font-bold text-green-900">{{ level1Count }}</p>
             </div>
-            
+
             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p class="text-xs text-blue-700 font-medium mb-1">二级需求</p>
               <p class="text-2xl font-bold text-blue-900">{{ level2Count }}</p>
             </div>
-            
+
             <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
               <p class="text-xs text-purple-700 font-medium mb-1">三级需求</p>
               <p class="text-2xl font-bold text-purple-900">{{ level3Count }}</p>
@@ -79,7 +73,7 @@
             </div>
             <span class="text-xs text-slate-400">{{ jsonString.length }} 字符</span>
           </div>
-          
+
           <div class="p-6 overflow-x-auto max-h-[600px] overflow-y-auto">
             <pre class="text-sm text-slate-100 font-mono leading-relaxed"><code>{{ jsonString }}</code></pre>
           </div>
@@ -108,7 +102,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '../store'
 import { getReviewResult } from '../api'
-import { Download, RotateCw, Copy, Code, Info } from 'lucide-vue-next'
+import { Download, RotateCw, Copy, Code, Info, Utensils } from 'lucide-vue-next'
 
 const router = useRouter()
 const store = useAppStore()
@@ -125,7 +119,7 @@ const jsonString = computed(() => {
 // 统计各级需求数量
 const countNodesByLevel = (nodes, targetLevel = null) => {
   let count = 0
-  
+
   const traverse = (nodeList) => {
     for (const node of nodeList) {
       if (targetLevel === null || node.level === targetLevel) {
@@ -136,7 +130,7 @@ const countNodesByLevel = (nodes, targetLevel = null) => {
       }
     }
   }
-  
+
   traverse(nodes)
   return count
 }
@@ -160,7 +154,7 @@ const level3Count = computed(() => {
 // 导出JSON
 const exportJSON = () => {
   if (!requirementTree.value) return
-  
+
   try {
     const blob = new Blob([jsonString.value], { type: 'application/json' })
     const url = window.URL.createObjectURL(blob)
@@ -191,15 +185,52 @@ const startNew = () => {
   store.clearAll()
   router.push('/')
 }
+const convertValidationResultToRequirementTree = (validation_results) => {
+  let parentIdToCildrens = {}
+  let idToItem = {}
 
+  for (const item of validation_results) {
+    let converted_item = {
+      id: item.id,
+      label: item.name,
+      content: item.reason,
+      e_status: item.result ? "pass" : "fail",
+      v_status: item.result,
+      level:0,
+      children: null,
+    }
+    idToItem[item.id] = converted_item
+    if (!(item.parent_id in parentIdToCildrens)) {
+      parentIdToCildrens[item.parent_id] = []
+    }
+    parentIdToCildrens[item.parent_id].push(converted_item)
+  }
+  for (const id in idToItem) {
+    idToItem[id].children = parentIdToCildrens[id]
+  }
+  const setLevel = (node, level) => {
+    node.level = level
+    if (node.children) {
+      for (const child of node.children) {
+        setLevel(child, level + 1)
+      }
+    }
+  }
+  const root = parentIdToCildrens["root"][0]
+  setLevel(root, 1)
+
+  return [root]
+}
 // 加载需求树数据
 const loadRequirementTree = async () => {
   loading.value = true
   try {
     // 尝试从API加载数据
-    if (store.reviewId) {
-      const result = await getReviewResult(store.reviewId)
-      requirementTree.value = result.requirement_tree || getMockData()
+    if (store.documentId) {
+      const result = await getReviewResult(store.documentId)
+      let vr = result.validation_results
+      let rt = convertValidationResultToRequirementTree(vr)
+      requirementTree.value = rt || getMockData()
     } else {
       // 如果没有reviewId，使用模拟数据
       requirementTree.value = getMockData()

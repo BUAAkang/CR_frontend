@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import UploadView from '../views/UploadView.vue'
 import ParseView from '../views/ParseView.vue'
 import ReviewView from '../views/ReviewView.vue'
@@ -45,7 +45,7 @@ const routes = [
       const store = useAppStore()
       if (!store.documentId) {
         next('/')
-      } else if (!store.parseId) {
+      } else if (!store.documentId) {
         next('/parse')
       } else {
         next()
@@ -64,7 +64,7 @@ const routes = [
         return
       }
       const store = useAppStore()
-      if (!store.reviewId) {
+      if (!store.documentId) {
         next('/')
       } else {
         next()
@@ -74,7 +74,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes,
 })
 

@@ -48,7 +48,7 @@ apiClient.interceptors.response.use(
  * @returns {Promise} 返回文档ID和名称
  */
 export const uploadDocument = (formData) => {
-  return apiClient.post('/documents/upload', formData, {
+  return apiClient.post('/upload', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
@@ -76,7 +76,7 @@ export const getDocumentDetail = (id) => {
  * @returns {Promise} 返回解析结果ID
  */
 export const parseDocument = (documentId) => {
-  return apiClient.post('/documents/parse', { document_id: documentId })
+  return apiClient.post('/parse', { document_id: documentId })
 }
 
 /**
@@ -95,8 +95,8 @@ export const getParseResult = (parseId) => {
  * @returns {Promise} 返回审查任务ID
  */
 export const reviewDocument = (parseId, options = {}) => {
-  return apiClient.post('/review/execute', { 
-    parse_id: parseId,
+  return apiClient.post('/validate', { 
+    doc_id: parseId,
     ...options 
   })
 }
@@ -107,7 +107,7 @@ export const reviewDocument = (parseId, options = {}) => {
  * @returns {Promise} 返回审查结果
  */
 export const getReviewResult = (reviewId) => {
-  return apiClient.get(`/review/${reviewId}`)
+  return apiClient.get(`/validate/${reviewId}`)
 }
 
 /**

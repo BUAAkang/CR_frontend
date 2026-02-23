@@ -9,22 +9,13 @@
 
       <!-- Upload Card -->
       <div class="bg-slate-50 border border-slate-200 rounded-xl p-8 shadow-sm">
-        <div 
-          v-if="!selectedFile"
+        <div v-if="!selectedFile"
           class="border-2 border-dashed border-slate-300 rounded-lg p-12 text-center hover:border-primary-600 transition-colors cursor-pointer group bg-white"
-          @click="triggerFileInput"
-          @dragover.prevent
-          @drop.prevent="handleDrop"
-        >
-          <input 
-            type="file" 
-            ref="fileInput" 
-            class="hidden" 
-            @change="handleFileChange" 
-            accept=".pdf,.doc,.docx,.txt"
-          />
+          @click="triggerFileInput" @dragover.prevent @drop.prevent="handleDrop">
+          <input type="file" ref="fileInput" class="hidden" @change="handleFileChange" accept=".pdf,.doc,.docx,.txt" />
           <div class="flex flex-col items-center space-y-4">
-            <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center group-hover:bg-primary-50 transition-colors">
+            <div
+              class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center group-hover:bg-primary-50 transition-colors">
               <Upload class="w-8 h-8 text-slate-400 group-hover:text-primary-600" />
             </div>
             <div class="space-y-1">
@@ -46,31 +37,21 @@
                 <p class="text-xs text-slate-500">{{ (selectedFile.size / 1024).toFixed(2) }} KB</p>
               </div>
             </div>
-            <button 
-              @click="cancelSelection" 
-              class="text-slate-400 hover:text-red-500 transition-colors" 
-              v-if="!uploading"
-            >
+            <button @click="cancelSelection" class="text-slate-400 hover:text-red-500 transition-colors"
+              v-if="!uploading">
               <X class="w-5 h-5" />
             </button>
           </div>
 
           <div class="space-y-2">
             <label class="text-sm font-bold text-slate-700">文档名称</label>
-            <input 
-              v-model="documentName" 
-              type="text" 
+            <input v-model="documentName" type="text"
               class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-              placeholder="请输入文档名称"
-              :disabled="uploading"
-            />
+              placeholder="请输入文档名称" :disabled="uploading" />
           </div>
 
-          <button 
-            @click="uploadFile" 
-            :disabled="uploading || !documentName.trim()"
-            class="w-full py-3 bg-primary-900 hover:bg-primary-800 disabled:bg-slate-300 text-white font-bold rounded-lg transition-all shadow-md flex items-center justify-center space-x-2"
-          >
+          <button @click="uploadFile" :disabled="uploading || !documentName.trim()"
+            class="w-full py-3 bg-primary-900 hover:bg-primary-800 disabled:bg-slate-300 text-white font-bold rounded-lg transition-all shadow-md flex items-center justify-center space-x-2">
             <Upload class="w-5 h-5" v-if="!uploading" />
             <RotateCw class="w-5 h-5 animate-spin" v-else />
             <span>{{ uploading ? '正在上传...' : '确认上传并开始审查' }}</span>
@@ -84,10 +65,8 @@
             <span>{{ uploadProgress }}%</span>
           </div>
           <div class="w-full bg-slate-200 rounded-full h-2">
-            <div 
-              class="bg-primary-600 h-2 rounded-full transition-all duration-300" 
-              :style="{ width: uploadProgress + '%' }"
-            ></div>
+            <div class="bg-primary-600 h-2 rounded-full transition-all duration-300"
+              :style="{ width: uploadProgress + '%' }"></div>
           </div>
         </div>
       </div>
@@ -99,10 +78,7 @@
             <History class="w-5 h-5 text-primary-600" />
             历史文档
           </h2>
-          <button 
-            @click="fetchDocuments" 
-            class="text-sm font-semibold text-primary-600 hover:text-primary-700"
-          >
+          <button @click="fetchDocuments" class="text-sm font-semibold text-primary-600 hover:text-primary-700">
             刷新列表
           </button>
         </div>
@@ -116,20 +92,17 @@
         </div>
 
         <div v-else class="grid grid-cols-1 gap-4">
-          <div 
-            v-for="doc in documents" 
-            :key="doc.id"
+          <div v-for="doc in documents" :key="doc.id"
             class="bg-white border border-slate-200 rounded-lg p-4 hover:shadow-md transition-all cursor-pointer group"
-            @click="selectDocument(doc)"
-          >
+            @click="selectDocument(doc)">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-4">
                 <div class="w-10 h-10 bg-primary-50 rounded flex items-center justify-center">
                   <FileText class="w-6 h-6 text-primary-600" />
                 </div>
                 <div>
-                  <p class="text-sm font-bold text-slate-900">{{ doc.name }}</p>
-                  <p class="text-xs text-slate-500">{{ doc.created_at }}</p>
+                  <p class="text-sm font-bold text-slate-900">{{ doc.filename }}</p>
+                  <p class="text-xs text-slate-500">{{ doc.upload_time }}</p>
                 </div>
               </div>
               <ChevronRight class="w-5 h-5 text-slate-400 group-hover:text-primary-600" />
@@ -194,14 +167,14 @@ const cancelSelection = () => {
 // 上传文件
 const uploadFile = async () => {
   if (!selectedFile.value || !documentName.value.trim()) return
-  
+
   uploading.value = true
   uploadProgress.value = 0
-  
+
   const formData = new FormData()
   formData.append('file', selectedFile.value)
   formData.append('name', documentName.value)
-  
+
   try {
     // 模拟上传进度
     const progressInterval = setInterval(() => {
@@ -209,20 +182,20 @@ const uploadFile = async () => {
         uploadProgress.value += 10
       }
     }, 200)
-    
+
     const response = await uploadDocument(formData)
-    
+    store.setDocument(response.doc_id, response.filename)
+
     clearInterval(progressInterval)
     uploadProgress.value = 100
-    
     // 保存到 store
-    store.setDocument(response.document_id, response.document_name)
-    
     // 延迟跳转，让用户看到100%进度
     setTimeout(() => {
-      router.push('/parse')
+      router.push(
+        'parse'
+      )
     }, 500)
-    
+
   } catch (error) {
     console.error('Upload failed:', error)
     alert('上传失败，请重试')
@@ -247,8 +220,8 @@ const fetchDocuments = async () => {
 
 // 选择已有文档
 const selectDocument = (doc) => {
-  store.setDocument(doc.id, doc.name)
-  router.push('/parse')
+  store.setDocument(doc.id, doc.filename)
+  router.push('parse')
 }
 
 // 页面加载时获取文档列表

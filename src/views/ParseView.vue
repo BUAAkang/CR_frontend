@@ -376,18 +376,18 @@ const loadMockData = () => {
 
 // 跳转到下一步
 const goToNext = () => {
-  router.push('/review')
+  router.push('review')
 }
 
 // 加载需求树数据
 const loadRequirementTree = async () => {
-  if (!store.parseId) return
+  if (!store.documentId) return
   
   loading.value = true
   try {
-    const result = await getParseResult(store.parseId)
+    const result = await getParseResult(store.documentId)
     // 这里假设API返回的数据包含 requirement_tree 字段
-    requirementTree.value = result.requirement_tree || null
+    requirementTree.value = result.requirement_tree.children || null
     
     // 自动选择第一个节点
     if (requirementTree.value && requirementTree.value.length > 0) {
