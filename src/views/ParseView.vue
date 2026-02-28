@@ -138,15 +138,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAppStore } from '../store'
+import { useRouter, useRoute } from 'vue-router'
 import { parseDocument, getParseResult } from '../api'
 import { FileText, ChevronRight } from 'lucide-vue-next'
 import { ElTree } from 'element-plus'
 import 'element-plus/dist/index.css'
 
 const router = useRouter()
-const store = useAppStore()
+const route = useRoute()
+
+// 从 URL 获取 documentId
+const documentId = computed(() => route.params.documentId)
 
 const loading = ref(false)
 const requirementTree = ref(null)
@@ -376,16 +378,24 @@ const loadMockData = () => {
 
 // 跳转到下一步
 const goToNext = () => {
-  router.push('review')
+  // 注意：这里假设解析完成后 parseId 等于 documentId
+  // 实际项目中应该从解析结果中获取真实的 parseId
+  router.push({
+    name: 'review',
+    params: {
+      documentId: documentId.value,
+      parseId: documentId.value // 根据实际情况调整
+    }
+  })
 }
 
 // 加载需求树数据
 const loadRequirementTree = async () => {
-  if (!store.documentId) return
+  if (!documentId.value) return
   
   loading.value = true
   try {
-    const result = await getParseResult(store.documentId)
+    const result = await getParseResult(documentId.value)
     // 这里假设API返回的数据包含 requirement_tree 字段
     requirementTree.value = result.requirement_tree.children || null
     

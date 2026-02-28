@@ -3,7 +3,6 @@ import UploadView from '../views/UploadView.vue'
 import ParseView from '../views/ParseView.vue'
 import ReviewView from '../views/ReviewView.vue'
 import ReportView from '../views/ReportView.vue'
-import { useAppStore } from '../store'
 
 const routes = [
   {
@@ -13,18 +12,13 @@ const routes = [
     meta: { title: '文档上传' }
   },
   {
-    path: '/parse',
+    path: '/documents/:documentId/parse',
     name: 'parse',
     component: ParseView,
     meta: { title: '需求分析' },
     beforeEnter: (to, from, next) => {
-      // 开发模式下跳过守卫检查
-      if (import.meta.env.DEV) {
-        next()
-        return
-      }
-      const store = useAppStore()
-      if (!store.documentId) {
+      // 验证 documentId 参数是否存在
+      if (!to.params.documentId) {
         next('/')
       } else {
         next()
@@ -32,39 +26,27 @@ const routes = [
     }
   },
   {
-    path: '/review',
+    path: '/documents/:documentId/parse/:parseId/review',
     name: 'review',
     component: ReviewView,
     meta: { title: '需求补全' },
     beforeEnter: (to, from, next) => {
-      // 开发模式下跳过守卫检查
-      if (import.meta.env.DEV) {
-        next()
-        return
-      }
-      const store = useAppStore()
-      if (!store.documentId) {
+      // 验证必需参数是否存在
+      if (!to.params.documentId || !to.params.parseId) {
         next('/')
-      } else if (!store.documentId) {
-        next('/parse')
       } else {
         next()
       }
     }
   },
   {
-    path: '/report',
+    path: '/documents/:documentId/parse/:parseId/review/:reviewId/report',
     name: 'report',
     component: ReportView,
     meta: { title: '需求导出' },
     beforeEnter: (to, from, next) => {
-      // 开发模式下跳过守卫检查
-      if (import.meta.env.DEV) {
-        next()
-        return
-      }
-      const store = useAppStore()
-      if (!store.documentId) {
+      // 验证必需参数是否存在
+      if (!to.params.documentId || !to.params.parseId || !to.params.reviewId) {
         next('/')
       } else {
         next()

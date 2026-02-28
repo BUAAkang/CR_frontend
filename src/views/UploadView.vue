@@ -117,12 +117,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAppStore } from '../store'
 import { uploadDocument, getDocuments } from '../api'
 import { Upload, FileText, X, RotateCw, History, ChevronRight } from 'lucide-vue-next'
 
 const router = useRouter()
-const store = useAppStore()
 
 const fileInput = ref(null)
 const selectedFile = ref(null)
@@ -184,16 +182,16 @@ const uploadFile = async () => {
     }, 200)
 
     const response = await uploadDocument(formData)
-    store.setDocument(response.doc_id, response.filename)
 
     clearInterval(progressInterval)
     uploadProgress.value = 100
-    // 保存到 store
+    
     // 延迟跳转，让用户看到100%进度
     setTimeout(() => {
-      router.push(
-        'parse'
-      )
+      router.push({
+        name: 'parse',
+        params: { documentId: response.doc_id }
+      })
     }, 500)
 
   } catch (error) {
@@ -220,8 +218,10 @@ const fetchDocuments = async () => {
 
 // 选择已有文档
 const selectDocument = (doc) => {
-  store.setDocument(doc.id, doc.filename)
-  router.push('parse')
+  router.push({
+    name: 'parse',
+    params: { documentId: doc.id }
+  })
 }
 
 // 页面加载时获取文档列表

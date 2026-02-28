@@ -87,13 +87,16 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAppStore } from '../store'
+import { useRouter, useRoute } from 'vue-router'
 import { reviewDocument, getReviewResult } from '../api'
 import { Play, RotateCw, CheckCircle } from 'lucide-vue-next'
 
 const router = useRouter()
-const store = useAppStore()
+const route = useRoute()
+
+// 从 URL 获取参数
+const documentId = computed(() => route.params.documentId)
+const parseId = computed(() => route.params.parseId)
 
 const reviewOptions = ref({
   checkGrammar: true,
@@ -112,16 +115,19 @@ const hasSelectedOptions = computed(() => {
   return Object.values(reviewOptions.value).some(v => v)
 })
 
+// 存储审查结果ID（用于跳转）
+const reviewId = ref(null)
+
 // 开始审查
 const startReview = async () => {
-  if (!store.documentId) return
+  if (!documentId.value) return
   
   reviewing.value = true
   reviewProgress.value = 0
   reviewComplete.value = false
   try {
-    const response = await reviewDocument(store.documentId, reviewOptions.value)
-    const reviewId = store.documentId
+    const response = await reviewDocument(documentId.value, reviewOptions.value)
+    reviewId.value = response.review_id || documentId.value // 从响应中获取 reviewId
     
     // 模拟进度更新
     const statusMessages = [
@@ -142,13 +148,12 @@ const startReview = async () => {
     }, 1000)
     
     // 轮询审查结果
-    await pollReviewResult(reviewId)
+    await pollReviewResult(reviewId.value)
     
     clearInterval(progressInterval)
     reviewProgress.value = 100
     reviewStatus.value = '审查完成'
     
-    store.setReview(reviewId)
     reviewComplete.value = true
     
   } catch (error) {
@@ -183,6 +188,13 @@ const pollReviewResult = async (reviewId) => {
 
 // 跳转到报告页面
 const goToReport = () => {
-  router.push('report')
+  router.push({
+    name: 'report',
+    params: {
+      documentId: documentId.value,
+      parseId: parseId.value,
+      reviewId: reviewId.value
+    }
+  })
 }
 </script>

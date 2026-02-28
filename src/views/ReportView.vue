@@ -99,13 +99,17 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAppStore } from '../store'
+import { useRouter, useRoute } from 'vue-router'
 import { getReviewResult } from '../api'
 import { Download, RotateCw, Copy, Code, Info, Utensils } from 'lucide-vue-next'
 
 const router = useRouter()
-const store = useAppStore()
+const route = useRoute()
+
+// 从 URL 获取参数
+const documentId = computed(() => route.params.documentId)
+const parseId = computed(() => route.params.parseId)
+const reviewId = computed(() => route.params.reviewId)
 
 const loading = ref(false)
 const requirementTree = ref(null)
@@ -160,7 +164,7 @@ const exportJSON = () => {
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `requirements-${store.documentName || 'export'}.json`
+    a.download = `requirements-${documentId.value || 'export'}.json`
     a.click()
     window.URL.revokeObjectURL(url)
   } catch (error) {
@@ -182,7 +186,6 @@ const copyToClipboard = async () => {
 
 // 开始新分析
 const startNew = () => {
-  store.clearAll()
   router.push('/')
 }
 const convertValidationResultToRequirementTree = (validation_results) => {
@@ -225,14 +228,14 @@ const convertValidationResultToRequirementTree = (validation_results) => {
 const loadRequirementTree = async () => {
   loading.value = true
   try {
-    // 尝试从API加载数据
-    if (store.documentId) {
-      const result = await getReviewResult(store.documentId)
+    // 尝试从 API 加载数据
+    if (reviewId.value) {
+      const result = await getReviewResult(reviewId.value)
       let vr = result.validation_results
       let rt = convertValidationResultToRequirementTree(vr)
       requirementTree.value = rt || getMockData()
     } else {
-      // 如果没有reviewId，使用模拟数据
+      // 如果没有 reviewId，使用模拟数据
       requirementTree.value = getMockData()
     }
   } catch (error) {
