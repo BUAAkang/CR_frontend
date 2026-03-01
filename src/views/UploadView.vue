@@ -190,7 +190,8 @@ const uploadFile = async () => {
     setTimeout(() => {
       router.push({
         name: 'parse',
-        params: { documentId: response.doc_id }
+        params: { documentId: response.doc_id },
+        query: { docName: documentName.value }
       })
     }, 500)
 
@@ -220,7 +221,8 @@ const fetchDocuments = async () => {
 const selectDocument = (doc) => {
   router.push({
     name: 'parse',
-    params: { documentId: doc.id }
+    params: { documentId: doc.id },
+    query: { docName: doc.filename }
   })
 }
 

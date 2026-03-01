@@ -3,7 +3,7 @@ import axios from 'axios'
 // 创建 axios 实例
 const apiClient = axios.create({
   baseURL: '/api',  // Vite 代理会将 /api 转发到后端
-  timeout: 30000,
+  timeout: 300000,
   headers: {
     'Content-Type': 'application/json'
   }
@@ -41,11 +41,13 @@ apiClient.interceptors.response.use(
 )
 
 // ==================== API 方法封装 ====================
+// 说明：所有接口统一使用 docId（文档ID）作为唯一标识
+// 上传后获得 docId，后续所有操作都基于这个 docId 进行
 
 /**
  * 上传文档
  * @param {FormData} formData - 包含文档文件和元数据的表单数据
- * @returns {Promise} 返回文档ID和名称
+ * @returns {Promise} 返回文档ID和名称 { doc_id, doc_name }
  */
 export const uploadDocument = (formData) => {
   return apiClient.post('/upload', formData, {
@@ -63,64 +65,38 @@ export const getDocuments = () => {
 
 /**
  * 获取文档详情
- * @param {string} id - 文档ID
+ * @param {string} docId - 文档ID
  * @returns {Promise} 返回文档详细信息
  */
-export const getDocumentDetail = (id) => {
-  return apiClient.get(`/documents/${id}`)
+export const getDocumentDetail = (docId) => {
+  return apiClient.get(`/documents/${docId}`)
 }
 
 /**
- * 解析文档
- * @param {string} documentId - 文档ID
- * @returns {Promise} 返回解析结果ID
+ * 获取解析结果（需求树）
+ * @param {string} docId - 文档ID
+ * @returns {Promise} 返回解析后的需求树结构
  */
-export const parseDocument = (documentId) => {
-  return apiClient.post('/parse', { document_id: documentId })
+export const getParseResult = (docId) => {
+  return apiClient.get(`/parse/${docId}`)
 }
 
 /**
- * 获取解析结果
- * @param {string} parseId - 解析ID
- * @returns {Promise} 返回解析结果
+ * 获取验证结果
+ * @param {string} docId - 文档ID
+ * @returns {Promise} 返回验证结果 { validation_results: [...] }
  */
-export const getParseResult = (parseId) => {
-  return apiClient.get(`/parse/${parseId}`)
+export const getReviewResult = (docId) => {
+  return apiClient.get(`/validate/${docId}`)
 }
 
 /**
- * 执行文档审查
- * @param {string} parseId - 解析ID
- * @param {object} options - 审查选项
- * @returns {Promise} 返回审查任务ID
+ * 导出需求树（JSON格式）
+ * @param {string} docId - 文档ID
+ * @returns {Promise} 返回扁平化的需求列表 { requirements: [...], total_requirements: number }
  */
-export const reviewDocument = (parseId, options = {}) => {
-  return apiClient.post('/validate', { 
-    doc_id: parseId,
-    ...options 
-  })
-}
-
-/**
- * 获取审查结果
- * @param {string} reviewId - 审查ID
- * @returns {Promise} 返回审查结果
- */
-export const getReviewResult = (reviewId) => {
-  return apiClient.get(`/validate/${reviewId}`)
-}
-
-/**
- * 导出审查报告
- * @param {string} reviewId - 审查ID
- * @param {string} format - 导出格式 (pdf/docx/html)
- * @returns {Promise} 返回文件下载URL或Blob
- */
-export const exportReport = (reviewId, format = 'pdf') => {
-  return apiClient.get(`/review/${reviewId}/export`, {
-    params: { format },
-    responseType: 'blob'
-  })
+export const exportRequirements = (docId) => {
+  return apiClient.get(`/export/${docId}`)
 }
 
 export default apiClient

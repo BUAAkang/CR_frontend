@@ -11,16 +11,15 @@
 
       <!-- 步骤导航 -->
       <div class="flex items-center space-x-4">
-        <template v-for="(step, index) in steps" :key="step.path">
+        <template v-for="(step, index) in steps" :key="step.routeName">
           <div class="flex items-center">
             <!-- 连接线 -->
             <div v-if="index > 0" class="h-px w-8 mx-2" :class="getConnectorClass(index)"></div>
             
             <!-- 步骤项 -->
-            <router-link 
-              :to="step.path"
+            <div
               :class="getStepClass(index)"
-              @click.prevent="handleStepClick(index, step.path)"
+              @click="handleStepClick(index, step)"
               class="flex items-center space-x-2 px-3 py-1.5 rounded-full transition-all duration-200"
             >
               <div class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" :class="getIconClass(index)">
@@ -28,16 +27,16 @@
                 <span v-else>{{ index + 1 }}</span>
               </div>
               <span class="text-sm font-semibold">{{ step.name }}</span>
-            </router-link>
+            </div>
           </div>
         </template>
       </div>
 
       <!-- 右侧信息区 -->
       <div class="flex items-center space-x-4 text-xs text-slate-500">
-        <div v-if="store.documentName" class="flex items-center bg-slate-100 px-3 py-1 rounded-full">
+        <div v-if="documentName" class="flex items-center bg-slate-100 px-3 py-1 rounded-full">
           <span class="opacity-60 mr-2 font-medium">Document:</span>
-          <span class="text-slate-900 font-semibold">{{ store.documentName }}</span>
+          <span class="text-slate-900 font-semibold">{{ documentName }}</span>
         </div>
       </div>
     </div>
@@ -47,10 +46,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useAppStore } from '../store'
-import { Check, Upload, FileText, CheckCircle, FileCheck } from 'lucide-vue-next'
+import { Check, Upload, FileText, FileCheck } from 'lucide-vue-next'
 
-const store = useAppStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -58,28 +55,32 @@ const CheckIcon = Check
 
 // 步骤定义 - 根据文档审查流程定制
 const steps = [
-  { name: '文档上传', path: '/', icon: Upload },
-  { name: '需求分析', path: '/parse', icon: FileText },
-  { name: '需求补全', path: '/review', icon: CheckCircle },
-  { name: '需求导出', path: '/report', icon: FileCheck },
+  { name: '文档上传', routeName: 'upload', icon: Upload },
+  { name: '需求分析', routeName: 'parse', icon: FileText },
+  { name: '需求验证', routeName: 'validate', icon: FileCheck },
+  { name: '需求导出', routeName: 'report', icon: FileCheck },
 ]
+
+// 从路由中获取状态信息
+const documentId = computed(() => route.params.documentId || null)
+const documentName = computed(() => route.query.docName || null)
 
 // 当前步骤索引
 const currentStepIndex = computed(() => {
-  const path = route.path
-  if (path === '/') return 0
-  if (path === '/parse') return 1
-  if (path === '/review') return 2
-  if (path === '/report') return 3
+  const routeName = route.name
+  if (routeName === 'upload') return 0
+  if (routeName === 'parse') return 1
+  if (routeName === 'validate') return 2
+  if (routeName === 'report') return 3
   return 0
 })
 
 // 判断步骤是否已完成
 const isCompleted = (index) => {
-  if (index === 0) return store.documentId !== null && currentStepIndex.value > 0
-  if (index === 1) return store.parseId !== null && currentStepIndex.value > 1
-  if (index === 2) return store.reviewId !== null && currentStepIndex.value > 2
-  return false
+  // 只有文档上传后，才能进入后续步骤
+  if (index === 0) return documentId.value !== null && currentStepIndex.value > 0
+  // 已经进入过的步骤被标记为完成
+  return currentStepIndex.value > index
 }
 
 // 判断步骤是否为当前激活步骤
@@ -87,19 +88,18 @@ const isActive = (index) => currentStepIndex.value === index
 
 // 判断步骤是否禁用
 const isDisabled = (index) => {
+  // 上传步骤始终可用
   if (index === 0) return false
-  if (index === 1) return store.documentId === null
-  if (index === 2) return store.parseId === null
-  if (index === 3) return store.reviewId === null
-  return true
+  // 其他步骤需要有 documentId
+  return documentId.value === null
 }
 
 // 获取步骤样式类
 const getStepClass = (index) => {
-  if (isActive(index)) return 'bg-primary-900 text-white shadow-md'
-  if (isCompleted(index)) return 'text-green-600 hover:bg-green-50'
+  if (isActive(index)) return 'bg-primary-900 text-white shadow-md cursor-default'
+  if (isCompleted(index)) return 'text-green-600 hover:bg-green-50 cursor-pointer'
   if (isDisabled(index)) return 'text-slate-300 cursor-not-allowed'
-  return 'text-slate-600 hover:bg-slate-100'
+  return 'text-slate-600 hover:bg-slate-100 cursor-pointer'
 }
 
 // 获取图标样式类
@@ -117,9 +117,20 @@ const getConnectorClass = (index) => {
 }
 
 // 处理步骤点击
-const handleStepClick = (index, path) => {
-  if (!isDisabled(index)) {
-    router.push(path)
+const handleStepClick = (index, step) => {
+  if (isDisabled(index)) return
+  
+  // 构建路由参数
+  const routeConfig = { name: step.routeName }
+  
+  // 如果不是上传步骤，需要带上 documentId
+  if (step.routeName !== 'upload' && documentId.value) {
+    routeConfig.params = { documentId: documentId.value }
+    if (documentName.value) {
+      routeConfig.query = { docName: documentName.value }
+    }
   }
+  
+  router.push(routeConfig)
 }
 </script>

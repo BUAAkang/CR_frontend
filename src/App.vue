@@ -4,7 +4,7 @@
     <main class="flex-1 overflow-hidden">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
-          <keep-alive :include="['UploadView', 'ParseView']">
+          <keep-alive :include="['UploadView', 'ParseView', 'ValidateView']">
             <component :is="Component" :key="$route.fullPath" />
           </keep-alive>
         </transition>
