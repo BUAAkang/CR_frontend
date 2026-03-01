@@ -105,7 +105,16 @@
                   <p class="text-xs text-slate-500">{{ doc.upload_time }}</p>
                 </div>
               </div>
-              <ChevronRight class="w-5 h-5 text-slate-400 group-hover:text-primary-600" />
+              <div class="flex items-center space-x-2">
+                <button 
+                  @click="handleDeleteDocument(doc, $event)"
+                  :disabled="deleting && deletingDocId === doc.id"
+                  class="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-all disabled:opacity-50"
+                  title="删除文档">
+                  <Trash2 class="w-4 h-4" :class="{ 'animate-pulse': deleting && deletingDocId === doc.id }" />
+                </button>
+                <ChevronRight class="w-5 h-5 text-slate-400 group-hover:text-primary-600" />
+              </div>
             </div>
           </div>
         </div>
@@ -117,8 +126,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { uploadDocument, getDocuments } from '../api'
-import { Upload, FileText, X, RotateCw, History, ChevronRight } from 'lucide-vue-next'
+import { uploadDocument, getDocuments, deleteDocument } from '../api'
+import { Upload, FileText, X, RotateCw, History, ChevronRight, Trash2 } from 'lucide-vue-next'
 
 const router = useRouter()
 
@@ -129,6 +138,8 @@ const uploading = ref(false)
 const uploadProgress = ref(0)
 const loading = ref(false)
 const documents = ref([])
+const deleting = ref(false)
+const deletingDocId = ref(null)
 
 // 触发文件选择
 const triggerFileInput = () => {
@@ -224,6 +235,39 @@ const selectDocument = (doc) => {
     params: { documentId: doc.id },
     query: { docName: doc.filename }
   })
+}
+
+// 删除文档
+const handleDeleteDocument = async (doc, event) => {
+  // 阻止事件冒泡，避免触发 selectDocument
+  event.stopPropagation()
+  
+  // 确认删除
+  if (!confirm(`确定要删除文档 "${doc.filename}" 吗？\n\n此操作将删除文档及其相关的所有数据（解析结果、验证结果等），且无法恢复。`)) {
+    return
+  }
+  
+  deleting.value = true
+  deletingDocId.value = doc.id
+  
+  try {
+    const response = await deleteDocument(doc.id)
+    
+    if (response.success) {
+      // 显示删除成功信息
+      alert('删除成功！')
+      // 刷新文档列表
+      await fetchDocuments()
+    } else {
+      alert('删除失败，请重试')
+    }
+  } catch (error) {
+    console.error('Delete failed:', error)
+    alert('删除失败：' + (error.response?.data?.error || error.message))
+  } finally {
+    deleting.value = false
+    deletingDocId.value = null
+  }
 }
 
 // 页面加载时获取文档列表

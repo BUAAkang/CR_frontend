@@ -99,4 +99,13 @@ export const exportRequirements = (docId) => {
   return apiClient.get(`/export/${docId}`)
 }
 
+/**
+ * 删除文档
+ * @param {string} docId - 文档ID
+ * @returns {Promise} 返回删除结果 { success: true, doc_id, deleted_files, errors }
+ */
+export const deleteDocument = (docId) => {
+  return apiClient.delete(`/delete/${docId}`)
+}
+
 export default apiClient
