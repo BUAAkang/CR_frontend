@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="border-b border-slate-200 px-8 py-6">
       <div class="max-w-7xl mx-auto">
-        <h1 class="text-3xl font-bold text-slate-900">需求分析</h1>
+        <h1 class="text-3xl font-bold text-slate-900">文档分析</h1>
         <p class="text-slate-500 font-medium mt-2">解析文档并提取需求结构树</p>
       </div>
     </div>
@@ -35,10 +35,10 @@
           </div>
 
           <!-- Node Content -->
-          <div class="space-y-3">
+          <div v-if="selectedNode.content" class="space-y-3">
             <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">需求内容</h3>
             <div class="bg-slate-50 border border-slate-200 rounded-lg p-6">
-              <p class="text-slate-700 leading-relaxed whitespace-pre-wrap">{{ selectedNode.content || '暂无内容描述' }}</p>
+              <p class="text-slate-700 leading-relaxed whitespace-pre-wrap">{{ selectedNode.content }}</p>
             </div>
           </div>
 
@@ -75,7 +75,7 @@
           @click="goToNext"
           class="px-6 py-2.5 bg-primary-900 hover:bg-primary-800 text-white font-bold rounded-lg transition-all shadow-sm flex items-center space-x-2"
         >
-          <span>进入需求验证</span>
+          <span>进入文档验证</span>
           <ChevronRight class="w-4 h-4" />
         </button>
       </div>

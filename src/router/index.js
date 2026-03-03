@@ -15,7 +15,7 @@ const routes = [
     path: '/documents/:documentId/parse',
     name: 'parse',
     component: ParseView,
-    meta: { title: '需求分析' },
+    meta: { title: '文档分析' },
     beforeEnter: (to, from, next) => {
       if (!to.params.documentId) {
         next('/')
@@ -28,7 +28,7 @@ const routes = [
     path: '/documents/:documentId/validate',
     name: 'validate',
     component: ValidateView,
-    meta: { title: '需求验证' },
+    meta: { title: '文档验证' },
     beforeEnter: (to, from, next) => {
       if (!to.params.documentId) {
         next('/')
@@ -41,7 +41,7 @@ const routes = [
     path: '/documents/:documentId/report',
     name: 'report',
     component: ReportView,
-    meta: { title: '需求导出' },
+    meta: { title: '文档导出' },
     beforeEnter: (to, from, next) => {
       if (!to.params.documentId) {
         next('/')

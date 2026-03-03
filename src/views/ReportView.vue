@@ -5,7 +5,7 @@
       <div class="max-w-7xl mx-auto">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-slate-900">需求导出</h1>
+            <h1 class="text-3xl font-bold text-slate-900">文档导出</h1>
             <p class="text-slate-500 font-medium mt-2">查看和导出需求树数据</p>
           </div>
           <div class="flex items-center space-x-3">
@@ -58,10 +58,10 @@
           </div>
 
           <!-- Node Content -->
-          <div class="space-y-3">
+          <div v-if="selectedNode.content" class="space-y-3">
             <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide">需求内容</h3>
             <div class="bg-slate-50 border border-slate-200 rounded-lg p-6">
-              <p class="text-slate-700 leading-relaxed whitespace-pre-wrap">{{ selectedNode.content || '暂无内容描述' }}</p>
+              <p class="text-slate-700 leading-relaxed whitespace-pre-wrap">{{ selectedNode.content }}</p>
             </div>
           </div>
 

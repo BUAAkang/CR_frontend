@@ -56,9 +56,9 @@ const CheckIcon = Check
 // 步骤定义 - 根据文档审查流程定制
 const steps = [
   { name: '文档上传', routeName: 'upload', icon: Upload },
-  { name: '需求分析', routeName: 'parse', icon: FileText },
-  { name: '需求验证', routeName: 'validate', icon: FileCheck },
-  { name: '需求导出', routeName: 'report', icon: FileCheck },
+  { name: '文档分析', routeName: 'parse', icon: FileText },
+  { name: '文档验证', routeName: 'validate', icon: FileCheck },
+  { name: '文档导出', routeName: 'report', icon: FileCheck },
 ]
 
 // 从路由中获取状态信息

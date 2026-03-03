@@ -4,7 +4,7 @@
     <div class="border-b border-slate-200 px-8 py-6">
       <div class="max-w-7xl mx-auto flex items-center justify-between">
         <div>
-          <h1 class="text-3xl font-bold text-slate-900">需求验证</h1>
+          <h1 class="text-3xl font-bold text-slate-900">文档验证</h1>
           <p class="text-slate-500 font-medium mt-2">审查软件需求文档完整性与准确性</p>
         </div>
         
@@ -124,7 +124,7 @@
           :disabled="validationData.length === 0"
           class="px-6 py-2.5 bg-primary-900 hover:bg-primary-800 disabled:bg-slate-300 text-white font-bold rounded-lg transition-all shadow-sm flex items-center space-x-2"
         >
-          <span>进入需求导出</span>
+          <span>进入文档导出</span>
           <ChevronRight class="w-4 h-4" />
         </button>
       </div>
