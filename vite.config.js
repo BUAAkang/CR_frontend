@@ -20,7 +20,7 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://192.168.31.34:5000', // 根据实际后端地址修改
+        target: 'http://127.0.0.1:5000', // 根据实际后端地址修改
         changeOrigin: true,
       },
     },
