@@ -28,7 +28,7 @@ const routes = [
     path: '/documents/:documentId/validate',
     name: 'validate',
     component: ValidateView,
-    meta: { title: '文档验证' },
+    meta: { title: '需求验证' },
     beforeEnter: (to, from, next) => {
       if (!to.params.documentId) {
         next('/')

@@ -108,4 +108,31 @@ export const deleteDocument = (docId) => {
   return apiClient.delete(`/delete/${docId}`)
 }
 
+// ==================== LLM 配置接口 ====================
+
+/**
+ * 获取当前 LLM 配置
+ * @returns {Promise} 返回 LLM 配置 { api_key, base_url, model }
+ */
+export const getLLMConfig = () => {
+  return apiClient.get('/config/llm')
+}
+
+/**
+ * 保存 LLM 配置
+ * @param {{ api_key: string, base_url: string, model: string }} payload - LLM 配置
+ * @returns {Promise} 返回保存结果 { success: true }
+ */
+export const saveLLMConfig = (payload) => {
+  return apiClient.put('/config/llm', payload)
+}
+
+/**
+ * 测试 LLM 连接
+ * @returns {Promise} 返回测试结果 { ok: boolean, model: string, reply?: string, error?: string }
+ */
+export const testLLMConnection = () => {
+  return apiClient.post('/config/llm/test')
+}
+
 export default apiClient

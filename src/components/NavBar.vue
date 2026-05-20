@@ -38,15 +38,33 @@
           <span class="opacity-60 mr-2 font-medium">Document:</span>
           <span class="text-slate-900 font-semibold">{{ documentName }}</span>
         </div>
+        <!-- LLM 配置按钮 -->
+        <button
+          @click="showLLMSettings = true"
+          class="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 hover:text-slate-800"
+          title="LLM 配置"
+        >
+          <Settings class="w-5 h-5" />
+        </button>
       </div>
+
+      <!-- LLM 配置弹窗 -->
+      <ModelSetting
+        :visible="showLLMSettings"
+        @close="showLLMSettings = false"
+        @saved="showLLMSettings = false"
+      />
     </div>
   </nav>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Check, Upload, FileText, FileCheck } from 'lucide-vue-next'
+import { Check, Upload, FileText, FileCheck, Settings } from 'lucide-vue-next'
+import ModelSetting from '@/components/ModelSetting.vue'
+
+const showLLMSettings = ref(false)
 
 const route = useRoute()
 const router = useRouter()
@@ -57,7 +75,7 @@ const CheckIcon = Check
 const steps = [
   { name: '文档上传', routeName: 'upload', icon: Upload },
   { name: '文档分析', routeName: 'parse', icon: FileText },
-  { name: '文档验证', routeName: 'validate', icon: FileCheck },
+  { name: '需求验证', routeName: 'validate', icon: FileCheck },
   { name: '文档导出', routeName: 'report', icon: FileCheck },
 ]
 

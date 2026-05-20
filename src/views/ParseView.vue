@@ -75,7 +75,7 @@
           @click="goToNext"
           class="px-6 py-2.5 bg-primary-900 hover:bg-primary-800 text-white font-bold rounded-lg transition-all shadow-sm flex items-center space-x-2"
         >
-          <span>进入文档验证</span>
+          <span>进入需求验证</span>
           <ChevronRight class="w-4 h-4" />
         </button>
       </div>
